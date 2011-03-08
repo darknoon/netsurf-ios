@@ -15,13 +15,6 @@
 
 @property(readonly, nonatomic) css_computed_style *style;
 
-/// Select style for an object
-+ (DNCSSStyle*)selectStyleForObject:(void*)object
-						  inContext:(DNCSSContext*)context
-							  media:(css_media_type)mediaTypes
-						inlineStyle:(DNCSSStylesheet*)inlineStyle
-					   usingHandler:(css_select_handler*)handler;
-
 /**
  * Merge this style (parent) with another style (child). |child| has
  * precedence. A new autoreleased CSSStyle object is returned.

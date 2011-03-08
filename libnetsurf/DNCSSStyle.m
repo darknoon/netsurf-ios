@@ -19,51 +19,6 @@ static CGFloat _UIScaleFactor() {
 
 @synthesize style = _style;
 
-//TODO: make this an initialiser
-+ (DNCSSStyle*)selectStyleForObject:(void*)object
-						  inContext:(DNCSSContext*)context
-							  media:(css_media_type)mediaTypes
-						inlineStyle:(DNCSSStylesheet*)inlineStyle
-					   usingHandler:(css_select_handler*)handler;
-{
-	DNCSSStyle *style = [[[self alloc] init] autorelease];
-	if (!style) return nil;
-	/**
-	 * Select a style for the given node
-	 *
-	 * \param ctx             Selection context to use
-	 * \param node            Node to select style for
-	 * \param media           Currently active media types
-	 * \param inline_style    Corresponding inline style for node, or NULL
-	 * \param handler         Dispatch table of handler functions
-	 * \param pw              Client-specific private data for handler functions
-	 * \param result          Pointer to location to receive result set
-	 * \return CSS_OK on success, appropriate error otherwise.
-	 *
-	 * In computing the style, no reference is made to the parent node's
-	 * style. Therefore, the resultant computed style is not ready for
-	 * immediate use, as some properties may be marked as inherited.
-	 * Use css_computed_style_compose() to obtain a fully computed style.
-	 *
-	 * This two-step approach to style computation is designed to allow
-	 * the client to store the partially computed style and efficiently
-	 * update the fully computed style for a node when layout changes.
-	 */
-	
-	css_error status = css_select_style(context->_selectContext, //ctx
-										object, //node
-										mediaTypes, //media
-										(inlineStyle ? inlineStyle->_stylesheet : NULL), //inline_style
-										handler,//handler
-										NULL, //handler data
-										&style->_styles);
-	style->_style = style->_styles->styles[CSS_PSEUDO_ELEMENT_NONE];
-	if (status != CSS_OK) {
-		[style release];
-		style = nil;
-	}
-	return style;
-}
 
 
 - (id)init {
@@ -79,7 +34,9 @@ static CGFloat _UIScaleFactor() {
 
 
 - (void)dealloc {
-	css_select_results_destroy(_styles);
+	if (_styles) {
+		css_select_results_destroy(_styles);
+	}
 	[super dealloc];
 }
 
@@ -106,11 +63,6 @@ static CGFloat _UIScaleFactor() {
 
 
 static CGFloat CSSDimensionToFontPoints(css_unit unit, css_fixed value) {
-  //NSDictionary *deviceDescription = [[NSScreen mainScreen] deviceDescription];
-  //NSValue *someValue = [deviceDescription objectForKey:NSDeviceResolution];
-  //CGFloat resolution = [someValue sizeValue].height;
-  // "describes the window’s raster resolution in dots per inch (dpi)."
-
   // em and ex whould have been computed into "absolute" units already
   assert(unit != CSS_UNIT_EM);
   assert(unit != CSS_UNIT_EX);

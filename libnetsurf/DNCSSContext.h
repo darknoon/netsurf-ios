@@ -11,6 +11,7 @@
 #import <libcss/libcss.h>
 
 @class DNCSSStylesheet;
+@class DNCSSStyle;
 @interface DNCSSContext : NSObject {
 	@package
 	css_select_ctx *_selectContext;
@@ -19,6 +20,8 @@
 - (id)initWithStylesheet:(DNCSSStylesheet*)inStyleSheet;
 
 - (void)addStylesheet:(DNCSSStylesheet *)inStyleSheet;
+
+- (DNCSSStyle *)computedStyleForNode:(void *)node withSelectHandlers:(css_select_handler *)inHandlers;
 
 //TODO:
 //- (void)insertStylesheet:(CSSStylesheet*)stylesheet atIndex:(NSUInteger)index;

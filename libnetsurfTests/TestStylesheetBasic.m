@@ -56,11 +56,7 @@ css_error node_has_name(void *pw, void *n, lwc_string *name, bool *match) {
 
 	DNCSSContext *context = [[DNCSSContext alloc] initWithStylesheet:stylesheet];
 	
-	DNCSSStyle *computedStyle = [DNCSSStyle selectStyleForObject:elementNameNode
-													   inContext:context
-														   media:CSS_MEDIA_SCREEN
-													 inlineStyle:nil
-													usingHandler:&handler];
+	DNCSSStyle *computedStyle = [context computedStyleForNode:elementNameNode withSelectHandlers:&handler];
 	
 	STAssertEqualObjects(computedStyle.color, [UIColor colorWithRed:1.0 green:0 blue:0 alpha:1.0], @"body color should be red");
 	
