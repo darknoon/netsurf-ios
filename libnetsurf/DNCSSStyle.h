@@ -1,5 +1,6 @@
 
 #import <UIKit/UIKit.h>
+#import <CoreText/CoreText.h>
 
 #import <libcss/libcss.h>
 
@@ -51,7 +52,7 @@
     fontVariant; // CSS_FONT_VARIANT_SMALL_CAPS..
 @property(readonly, nonatomic) CGFloat fontSize; // in points
 @property(readonly, nonatomic) NSArray *fontFamilyNames; // nil means "inherit"
-@property(readonly, nonatomic) UIFont *font; // nil means "inherit" or no font family could be found
+@property(readonly, nonatomic) CTFontDescriptorRef fontDescriptor; // nil means "inherit" or no font family could be found
 
 // text
 @property(readonly, nonatomic) int

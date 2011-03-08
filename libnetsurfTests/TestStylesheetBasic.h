@@ -14,8 +14,10 @@
 #import <UIKit/UIKit.h>
 //#import "application_headers" as required
 
+#include <libcss/libcss.h>
+
 @interface TestStylesheetBasic : SenTestCase {
-    
+    css_select_handler handler;
 }
 
 @end

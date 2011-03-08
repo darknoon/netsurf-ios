@@ -341,6 +341,7 @@
 		49DC7F2F13257CFC00297E5E /* vector.c in Sources */ = {isa = PBXBuildFile; fileRef = 49DC7CDA13257CFC00297E5E /* vector.c */; };
 		49DC7F7613257CFC00297E5E /* libwapcaplet.h in Headers */ = {isa = PBXBuildFile; fileRef = 49DC7D2213257CFC00297E5E /* libwapcaplet.h */; };
 		49DC7F7B13257CFC00297E5E /* libwapcaplet.c in Sources */ = {isa = PBXBuildFile; fileRef = 49DC7D2713257CFC00297E5E /* libwapcaplet.c */; };
+		49F1505913262F9600010448 /* CoreText.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 49F1505813262F9600010448 /* CoreText.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -691,6 +692,7 @@
 		49DC7CDA13257CFC00297E5E /* vector.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = vector.c; sourceTree = "<group>"; };
 		49DC7D2213257CFC00297E5E /* libwapcaplet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = libwapcaplet.h; sourceTree = "<group>"; };
 		49DC7D2713257CFC00297E5E /* libwapcaplet.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = libwapcaplet.c; sourceTree = "<group>"; };
+		49F1505813262F9600010448 /* CoreText.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreText.framework; path = System/Library/Frameworks/CoreText.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -706,6 +708,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				49F1505913262F9600010448 /* CoreText.framework in Frameworks */,
 				499CC3141325DD2E004CF552 /* liblibnetsurf.a in Frameworks */,
 				497A8D8E13257B7F00F3BFFB /* UIKit.framework in Frameworks */,
 				497A8D8F13257B7F00F3BFFB /* Foundation.framework in Frameworks */,
@@ -738,6 +741,7 @@
 		497A8D8113257B7F00F3BFFB /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				49F1505813262F9600010448 /* CoreText.framework */,
 				497A8D8213257B7F00F3BFFB /* Foundation.framework */,
 				497A8D8D13257B7F00F3BFFB /* UIKit.framework */,
 				497A8D9013257B7F00F3BFFB /* CoreGraphics.framework */,

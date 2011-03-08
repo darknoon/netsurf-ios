@@ -232,72 +232,92 @@ SYNTHESIZE_BORDER_WIDTH(borderBottomWidth, bottom)
   return names;
 }
 
-#if 0
-- (NSFont*)font {
-  NSFontTraitMask fontTraitMask = 0;
+- (CTFontDescriptorRef)fontDescriptor {
+	CTFontSymbolicTraits fontTraitMask = 0;
+	
+	// retrieve family names
+	lwc_string **familyNamesPtr = NULL;
+	uint8_t familyClass = css_computed_font_family(_style, &familyNamesPtr);
+	if (familyClass == CSS_FONT_FAMILY_INHERIT)
+		return nil;
+	
+	// font style
+	switch (self.fontStyle) {
+		case CSS_FONT_STYLE_ITALIC:
+		case CSS_FONT_STYLE_OBLIQUE:
+			fontTraitMask |= kCTFontItalicTrait;
+			break;
+	}
+	
+	// font variant
+	//TODO: implement CSS_FONT_VARIANT_SMALL_CAPS
+	//	if (self.fontVariant == CSS_FONT_VARIANT_SMALL_CAPS)
+	//		fontTraitMask |= kCTFontTraitsAttribute;
+	
+	// font weight (currently only "bold" is supported)
+	switch (self.fontWeight) {
+		case CSS_FONT_WEIGHT_BOLD:
+		case CSS_FONT_WEIGHT_BOLDER:
+			fontTraitMask |= kCTFontBoldTrait;
+			break;
+	}
+	
+	CTFontDescriptorRef matchedFontDescriptor = NULL;
+	
+	NSMutableDictionary *fontAttributes = [[NSMutableDictionary alloc] initWithCapacity:4];
+	NSMutableDictionary *fontTraits = [[NSMutableDictionary alloc] initWithCapacity:4];	
+	[fontAttributes setObject:fontTraits forKey:(id)kCTFontTraitsAttribute];
 
-  // retrieve family names
-  lwc_string **familyNames = NULL;
-  uint8_t familyClass = css_computed_font_family(_style, &familyNames);
-  if (familyClass == CSS_FONT_FAMILY_INHERIT)
-    return nil;
+	[fontTraits setObject:[NSNumber numberWithInt:fontTraitMask] forKey:(id)kCTFontSymbolicTrait];
+	[fontAttributes setObject:[NSNumber numberWithFloat:self.fontSize] forKey:(id)kCTFontSizeAttribute];
+	
+	
+	NSSet *requiredAttributes = [[NSSet alloc] initWithObjects:(id)kCTFontNameAttribute, nil];
 
-  // font style
-  switch (self.fontStyle) {
-    case CSS_FONT_STYLE_ITALIC:
-    case CSS_FONT_STYLE_OBLIQUE:
-      fontTraitMask |= NSItalicFontMask;
-      break;
-  }
+	// try family names in order and stop at first found
+	if (familyNamesPtr) {
+		//Font must match name, and traits
+		while (*familyNamesPtr != NULL && !matchedFontDescriptor) {
+			NSString *familyName = [NSString stringWithLWCString:*(familyNamesPtr++)];
 
-  // font variant
-  if (self.fontVariant == CSS_FONT_VARIANT_SMALL_CAPS)
-    fontTraitMask |= NSSmallCapsFontMask;
+			if (familyName) [fontTraits setObject:fontAttributes forKey:(id)kCTFontNameAttribute];
+			CTFontDescriptorRef fontDescriptor =  CTFontDescriptorCreateWithAttributes((CFDictionaryRef)fontAttributes);
+			//Attempt to find a matching font
+			matchedFontDescriptor = CTFontDescriptorCreateMatchingFontDescriptor(fontDescriptor, (CFSetRef)requiredAttributes);
+			CFRelease(fontDescriptor);
+		}
+	}
+	
+	// try symbolic class
+	if (!matchedFontDescriptor) {
+			
+		NSString *familyName = nil;
+		switch (familyClass) {
+			//Font of last resort: Times
+			default:
+			case CSS_FONT_FAMILY_SERIF: familyName = @"Times New Roman"; break;
+			case CSS_FONT_FAMILY_SANS_SERIF: familyName = @"Helvetica"; break;
+			case CSS_FONT_FAMILY_CURSIVE: familyName = @"SnellRoundhand"; break;
+			case CSS_FONT_FAMILY_FANTASY: familyName = @"Zapfino"; break;
+			case CSS_FONT_FAMILY_MONOSPACE: familyName = @"Courier"; break;
+		}
+		[fontAttributes setObject:familyName forKey:(id)kCTFontNameAttribute];
+		
+		CTFontDescriptorRef fontDescriptor = CTFontDescriptorCreateWithAttributes((CFDictionaryRef)fontAttributes);
+		
+		matchedFontDescriptor = CTFontDescriptorCreateMatchingFontDescriptor(fontDescriptor, (CFSetRef)requiredAttributes);
+		
+		CFRelease(fontDescriptor);
 
-  // font weight (currently only "bold" is supported)
-  switch (self.fontWeight) {
-    case CSS_FONT_WEIGHT_BOLD:
-    case CSS_FONT_WEIGHT_BOLDER:
-      fontTraitMask |= NSBoldFontMask;
-      break;
-  }
+	}
+	
+	[fontTraits release];
+	[requiredAttributes release];
 
-  NSFontManager *fontManager = [NSFontManager sharedFontManager];
-  NSFont *font = nil;
-  CGFloat fontSize = self.fontSize;
-
-  // try family names in order and stop at first found
-  if (familyNames) {
-    while (*familyNames != NULL) {
-      NSString *familyName = [NSString stringWithLWCString:*(familyNames++)];
-      font = [fontManager fontWithFamily:familyName
-                                  traits:fontTraitMask
-                                  weight:0
-                                    size:fontSize];
-      if (font)
-        break;
-    }
-  }
-
-  // try symbolic class
-  if (!font) {
-    NSString *familyName = @"Lucida Grande";
-    switch (familyClass) {
-      case CSS_FONT_FAMILY_SERIF: familyName = @"Times"; break;
-      case CSS_FONT_FAMILY_SANS_SERIF: familyName = @"Helvetica"; break;
-      case CSS_FONT_FAMILY_CURSIVE: familyName = @"Apple Chancery"; break;
-      case CSS_FONT_FAMILY_FANTASY: familyName = @"Herculanum"; break;
-      case CSS_FONT_FAMILY_MONOSPACE: familyName = @"Menlo"; break;
-    }
-    font = [fontManager fontWithFamily:familyName
-                                traits:fontTraitMask
-                                weight:0
-                                  size:fontSize];
-  }
-
-  return font;
+	//In case we have GC...
+		
+	return (CTFontDescriptorRef)[NSMakeCollectable(matchedFontDescriptor) autorelease];
 }
-#endif
 
 // text
 
