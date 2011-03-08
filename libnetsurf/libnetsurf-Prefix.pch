@@ -5,7 +5,3 @@
 #ifdef __OBJC__
 	#import <Foundation/Foundation.h>
 #endif
-
-#import <libwapcaplet/libwapcaplet.h>
-#import <parserutils/parserutils.h>
-#import <libcss/types.h>

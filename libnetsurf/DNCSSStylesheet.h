@@ -11,12 +11,16 @@
 #include <libcss/libcss.h>
 
 @interface DNCSSStylesheet : NSObject {
-@private
+@package
 	css_stylesheet *_stylesheet;
+	NSURL *_baseURL;
 }
 
 //Load from static data.
 //For now, the stylesheet may not reference external stylesheets
-- (id)initWithData:(NSData *)inData error:(NSError **)outError;
+//Pass in UTF-8 encoded string data
+- (id)initWithData:(NSData *)inData baseURL:(NSURL *)inBaseURL error:(NSError **)outError;
+
+@property (nonatomic, readonly) NSURL *baseURL;
 
 @end
