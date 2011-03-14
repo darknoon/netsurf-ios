@@ -56,6 +56,8 @@ static css_error dummy_url_resolver(void *pw, const char *base, lwc_string *rel,
 	_baseURL = [inBaseURL retain];
 
 	css_stylesheet_params params = {
+		.params_version = CSS_STYLESHEET_PARAMS_VERSION_1,
+		
 		/** The language level of the stylesheet */
 		.level = CSS_LEVEL_DEFAULT,
 		

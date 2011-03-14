@@ -23,6 +23,7 @@
 		return nil;
 	}
 	
+	_stylesheets = [[NSMutableArray alloc] init];
 	
 	return self;
 }
@@ -38,9 +39,16 @@
 }
 
 
+- (void)dealloc {
+    [_stylesheets release];
+	css_select_ctx_destroy(_selectContext);
+    [super dealloc];
+}
+
 - (void)addStylesheet:(DNCSSStylesheet *)inStyleSheet;
 {
 	css_select_ctx_append_sheet(_selectContext, inStyleSheet->_stylesheet, CSS_ORIGIN_AUTHOR, CSS_MEDIA_ALL);
+	[_stylesheets addObject:inStyleSheet];
 }
 
 - (DNCSSStyle *)computedStyleForNode:(void *)node inlineStylesheet:(DNCSSStylesheet *)inInlineStylesheet withSelectHandlers:(css_select_handler *)inHandlers;

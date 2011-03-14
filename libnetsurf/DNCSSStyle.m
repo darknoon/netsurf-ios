@@ -344,6 +344,7 @@ SYNTHESIZE_POSITION_VALUE(bottom, BOTTOM)
 	}
 	
 	[fontTraits release];
+	[fontAttributes release];
 	[requiredAttributes release];
 
 	//In case we have GC...

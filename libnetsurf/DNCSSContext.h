@@ -15,6 +15,7 @@
 @interface DNCSSContext : NSObject {
 	@package
 	css_select_ctx *_selectContext;
+	NSMutableArray *_stylesheets;
 }
 
 - (id)initWithStylesheet:(DNCSSStylesheet*)inStyleSheet;
