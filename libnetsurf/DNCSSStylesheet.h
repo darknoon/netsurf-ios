@@ -20,6 +20,7 @@
 //For now, the stylesheet may not reference external stylesheets
 //Pass in UTF-8 encoded string data
 - (id)initWithData:(NSData *)inData baseURL:(NSURL *)inBaseURL error:(NSError **)outError;
+- (id)initWithData:(NSData *)inData baseURL:(NSURL *)inBaseURL isInline:(BOOL)inIsInline error:(NSError **)outError;
 
 @property (nonatomic, readonly) NSURL *baseURL;
 

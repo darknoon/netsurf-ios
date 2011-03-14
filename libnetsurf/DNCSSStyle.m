@@ -190,6 +190,38 @@ SYNTHESIZE_BORDER_WIDTH(borderBottomWidth, bottom)
 	}
 }
 
+#define SYNTHESIZE_POSITION_VALUE(name, nameCaps) \
+- (CGFloat)name { \
+	css_fixed value; \
+	css_unit unit; \
+	uint8_t r = css_computed_##name(_style, &value, &unit); \
+	switch (r) { \
+		case CSS_##nameCaps##_SET: return FIXTOFLT(value); \
+		case CSS_##nameCaps##_INHERIT: \
+		case CSS_##nameCaps##_AUTO: \
+		default: \
+		return 0.0; \
+	}; \
+}
+
+//SYNTHESIZE_POSITION_VALUE(left, LEFT)
+- (CGFloat)left {
+	css_fixed value;
+	css_unit unit;
+	uint8_t r = css_computed_left(_style, &value, &unit);
+	switch (r) {
+		case CSS_LEFT_SET: return FIXTOFLT(value);
+		case CSS_LEFT_INHERIT: 
+		case CSS_LEFT_AUTO:
+		default:
+			return 0.0;
+	};
+}
+
+
+SYNTHESIZE_POSITION_VALUE(right, RIGHT)
+SYNTHESIZE_POSITION_VALUE(top, TOP)
+SYNTHESIZE_POSITION_VALUE(bottom, BOTTOM)
 
 // Font
 

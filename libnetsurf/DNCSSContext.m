@@ -43,7 +43,7 @@
 	css_select_ctx_append_sheet(_selectContext, inStyleSheet->_stylesheet, CSS_ORIGIN_AUTHOR, CSS_MEDIA_ALL);
 }
 
-- (DNCSSStyle *)computedStyleForNode:(void *)node withSelectHandlers:(css_select_handler *)inHandlers;
+- (DNCSSStyle *)computedStyleForNode:(void *)node inlineStylesheet:(DNCSSStylesheet *)inInlineStylesheet withSelectHandlers:(css_select_handler *)inHandlers;
 {
 	DNCSSStyle *style = [[[DNCSSStyle alloc] init] autorelease];
 	if (!style) return nil;
@@ -70,22 +70,28 @@
 	 */
 	
 	css_media_type mediaType = CSS_MEDIA_SCREEN;
-	DNCSSStylesheet *inlineStyle = nil;
 	
 	css_error status = css_select_style(_selectContext, //ctx
 										node, //node
 										mediaType, //media
-										(inlineStyle ? inlineStyle->_stylesheet : NULL), //inline_style
+										(inInlineStylesheet ? inInlineStylesheet->_stylesheet : NULL), //inline_style
 										inHandlers,//handler
 										NULL, //handler data
 										&style->_styles);
 	
-	style->_style = style->_styles->styles[CSS_PSEUDO_ELEMENT_NONE];
 	if (status != CSS_OK) {
 		[style release];
 		style = nil;
 	}
+
+	style->_style = style->_styles->styles[CSS_PSEUDO_ELEMENT_NONE];
+	
 	return style;	
+}
+
+- (DNCSSStyle *)computedStyleForNode:(void *)node withSelectHandlers:(css_select_handler *)inHandlers;
+{
+	return [self computedStyleForNode:node inlineStylesheet:nil withSelectHandlers:inHandlers];
 }
 
 @end

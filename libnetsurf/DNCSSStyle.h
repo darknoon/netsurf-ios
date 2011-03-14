@@ -45,6 +45,13 @@
     width,
     height;
 
+// Block position
+@property(readonly, nonatomic) CGFloat
+	left,
+	top,
+	right,
+	bottom;
+
 // Font
 @property(readonly, nonatomic) int
     fontWeight, // 100, 400, ...

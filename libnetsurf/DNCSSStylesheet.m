@@ -45,6 +45,11 @@ static css_error dummy_url_resolver(void *pw, const char *base, lwc_string *rel,
 
 - (id)initWithData:(NSData *)inData baseURL:(NSURL *)inBaseURL error:(NSError **)outError;
 {
+	return [self initWithData:inData baseURL:inBaseURL isInline:NO error:outError];
+}
+
+- (id)initWithData:(NSData *)inData baseURL:(NSURL *)inBaseURL isInline:(BOOL)inIsInline error:(NSError **)outError;
+{
 	self = [super init];
 	if (!self) return nil;
 
@@ -64,7 +69,7 @@ static css_error dummy_url_resolver(void *pw, const char *base, lwc_string *rel,
 		/** Permit quirky parsing of stylesheet */
 		.allow_quirks = false,
 		/** This stylesheet is an inline style */
-		.inline_style = false,
+		.inline_style = inIsInline,
 		
 		/** URL resolution function */
 		.resolve = resolve_url,

@@ -3,10 +3,15 @@
 
 @implementation NSString (wapcaplet)
 
+- (id)initWithLWCString:(struct lwc_string_s*)str;
+{
+	return [self initWithBytes:lwc_string_data(str)
+						length:lwc_string_length(str)
+					  encoding:NSUTF8StringEncoding];
+}
+
 + (NSString*)stringWithLWCString:(lwc_string*)str {
-  return [[[NSString alloc] initWithBytes:lwc_string_data(str)
-                                   length:lwc_string_length(str)
-                                 encoding:NSUTF8StringEncoding] autorelease];
+	return [[[self alloc] initWithLWCString:str] autorelease];
 }
 
 - (lwc_string*)LWCString {

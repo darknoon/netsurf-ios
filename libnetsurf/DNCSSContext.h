@@ -22,6 +22,7 @@
 - (void)addStylesheet:(DNCSSStylesheet *)inStyleSheet;
 
 - (DNCSSStyle *)computedStyleForNode:(void *)node withSelectHandlers:(css_select_handler *)inHandlers;
+- (DNCSSStyle *)computedStyleForNode:(void *)node inlineStylesheet:(DNCSSStylesheet *)inInlineStylesheet withSelectHandlers:(css_select_handler *)inHandlers;
 
 //TODO:
 //- (void)insertStylesheet:(CSSStylesheet*)stylesheet atIndex:(NSUInteger)index;
