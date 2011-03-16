@@ -20,7 +20,7 @@
  * Merge this style (parent) with another style (child). |child| has
  * precedence. A new autoreleased CSSStyle object is returned.
  */
-- (DNCSSStyle *)styleByMergingWithStyle:(DNCSSStyle *)child error:(NSError **)outError;
+- (DNCSSStyle *)styleByMergingWithStyle:(DNCSSStyle *)child withSelectHandlers:(css_select_handler *)inSelectHandlers error:(NSError **)outError;
 
 #pragma mark -
 #pragma mark Style properties
@@ -58,8 +58,7 @@
     fontStyle, // CSS_FONT_STYLE_ITALIC, ...
     fontVariant; // CSS_FONT_VARIANT_SMALL_CAPS..
 @property(readonly, nonatomic) CGFloat fontSize; // in points
-@property(readonly, nonatomic) NSArray *fontFamilyNames; // nil means "inherit"
-@property(readonly, nonatomic) CTFontDescriptorRef fontDescriptor; // nil means "inherit" or no font family could be found
+@property(readonly, nonatomic) CTFontRef font; // nil means "inherit" or no font family could be found
 
 // text
 @property(readonly, nonatomic) int

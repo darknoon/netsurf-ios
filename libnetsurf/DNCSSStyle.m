@@ -36,17 +36,17 @@ static CGFloat _UIScaleFactor() {
 - (void)dealloc {
 	if (_styles) {
 		css_select_results_destroy(_styles);
+		_styles = NULL;
 	}
 	[super dealloc];
 }
 
 
-- (DNCSSStyle *)styleByMergingWithStyle:(DNCSSStyle *)child error:(NSError **)outError;
+- (DNCSSStyle *)styleByMergingWithStyle:(DNCSSStyle *)child withSelectHandlers:(css_select_handler *)inSelectHandlers error:(NSError **)outError;
 {
 	DNCSSStyle *mergedStyle = [[isa alloc] init];
 	
-	css_error status = css_computed_style_compose(_style, child->_style,
-												  CSSSelectHandlerBase.compute_font_size, self, mergedStyle.style);
+	css_error status = css_computed_style_compose(_style, child->_style, inSelectHandlers->compute_font_size, self, mergedStyle.style);
 	if (status != CSS_OK) {
 		if (outError) {
 			*outError = [NSError errorWithCSSStatus:status];
@@ -240,6 +240,7 @@ SYNTHESIZE_POSITION_VALUE(bottom, BOTTOM)
   return points;
 }
 
+/*
 - (NSArray *)fontFamilyNames {
   //lwc_string **names style->font_family
   NSMutableArray *names = nil;
@@ -263,8 +264,9 @@ SYNTHESIZE_POSITION_VALUE(bottom, BOTTOM)
   }
   return names;
 }
+*/
 
-- (CTFontDescriptorRef)fontDescriptor {
+- (CTFontRef)font {
 	CTFontSymbolicTraits fontTraitMask = 0;
 	
 	// retrieve family names
@@ -290,11 +292,16 @@ SYNTHESIZE_POSITION_VALUE(bottom, BOTTOM)
 	switch (self.fontWeight) {
 		case CSS_FONT_WEIGHT_BOLD:
 		case CSS_FONT_WEIGHT_BOLDER:
+		case CSS_FONT_WEIGHT_500:
+		case CSS_FONT_WEIGHT_600:
+		case CSS_FONT_WEIGHT_700:
+		case CSS_FONT_WEIGHT_800:
+		case CSS_FONT_WEIGHT_900:
 			fontTraitMask |= kCTFontBoldTrait;
 			break;
 	}
 	
-	CTFontDescriptorRef matchedFontDescriptor = NULL;
+	CTFontRef matchedFont = NULL;
 	
 	NSMutableDictionary *fontAttributes = [[NSMutableDictionary alloc] initWithCapacity:4];
 	NSMutableDictionary *fontTraits = [[NSMutableDictionary alloc] initWithCapacity:4];	
@@ -303,25 +310,24 @@ SYNTHESIZE_POSITION_VALUE(bottom, BOTTOM)
 	[fontTraits setObject:[NSNumber numberWithInt:fontTraitMask] forKey:(id)kCTFontSymbolicTrait];
 	[fontAttributes setObject:[NSNumber numberWithFloat:self.fontSize] forKey:(id)kCTFontSizeAttribute];
 	
-	
-	NSSet *requiredAttributes = [[NSSet alloc] initWithObjects:(id)kCTFontNameAttribute, nil];
 
 	// try family names in order and stop at first found
 	if (familyNamesPtr) {
 		//Font must match name, and traits
-		while (*familyNamesPtr != NULL && !matchedFontDescriptor) {
+		while (*familyNamesPtr != NULL && !matchedFont) {
 			NSString *familyName = [NSString stringWithLWCString:*(familyNamesPtr++)];
-
-			if (familyName) [fontTraits setObject:fontAttributes forKey:(id)kCTFontNameAttribute];
-			CTFontDescriptorRef fontDescriptor =  CTFontDescriptorCreateWithAttributes((CFDictionaryRef)fontAttributes);
-			//Attempt to find a matching font
-			matchedFontDescriptor = CTFontDescriptorCreateMatchingFontDescriptor(fontDescriptor, (CFSetRef)requiredAttributes);
-			CFRelease(fontDescriptor);
+			if (familyName) {
+				[fontAttributes setObject:familyName forKey:(id)kCTFontDisplayNameAttribute];
+				CTFontDescriptorRef fontDescriptor = CTFontDescriptorCreateWithNameAndSize((CFStringRef)familyName, self.fontSize);
+				//Attempt to find a matching font
+				matchedFont = CTFontCreateWithFontDescriptor(fontDescriptor, self.fontSize, NULL);
+				CFRelease(fontDescriptor);				
+			}
 		}
 	}
 	
 	// try symbolic class
-	if (!matchedFontDescriptor) {
+	if (!matchedFont) {
 			
 		NSString *familyName = nil;
 		switch (familyClass) {
@@ -335,9 +341,9 @@ SYNTHESIZE_POSITION_VALUE(bottom, BOTTOM)
 		}
 		[fontAttributes setObject:familyName forKey:(id)kCTFontNameAttribute];
 		
-		CTFontDescriptorRef fontDescriptor = CTFontDescriptorCreateWithAttributes((CFDictionaryRef)fontAttributes);
+		CTFontDescriptorRef fontDescriptor = CTFontDescriptorCreateWithNameAndSize((CFStringRef)familyName, self.fontSize);
 		
-		matchedFontDescriptor = CTFontDescriptorCreateMatchingFontDescriptor(fontDescriptor, (CFSetRef)requiredAttributes);
+		matchedFont = CTFontCreateWithFontDescriptor(fontDescriptor, self.fontSize, NULL);
 		
 		CFRelease(fontDescriptor);
 
@@ -345,11 +351,17 @@ SYNTHESIZE_POSITION_VALUE(bottom, BOTTOM)
 	
 	[fontTraits release];
 	[fontAttributes release];
-	[requiredAttributes release];
-
-	//In case we have GC...
-		
-	return (CTFontDescriptorRef)[NSMakeCollectable(matchedFontDescriptor) autorelease];
+	
+	//TODO: file bug that CTFontDescriptorCreateWithAttributes's fontTraits
+	if (matchedFont) {
+		CTFontRef fullFont = CTFontCreateCopyWithSymbolicTraits(matchedFont, self.fontSize, NULL, fontTraitMask, kCTFontBoldTrait | kCTFontItalicTrait);
+		if (fullFont) {
+			CFRelease(matchedFont);
+			matchedFont = fullFont;
+		}
+	}
+	[(id)matchedFont autorelease];
+	return matchedFont;
 }
 
 // text
